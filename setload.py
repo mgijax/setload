@@ -75,8 +75,6 @@ bcpdelim = TAB		# bcp file delimiter
 
 bcpon = 1		# can the bcp files be bcp-ed into the database?  default is yes.
 
-datadir = os.environ['SETLOADDATADIR']	# file which contains the data files
-
 diagFile = ''		# diagnostic file descriptor
 errorFile = ''		# error file descriptor
 
@@ -89,8 +87,8 @@ inputFile = ''		# file descriptor
 setTable = 'MGI_Set'
 memberTable = 'MGI_SetMember'
 
-outSetFileName = datadir + '/' + setTable + '.bcp'
-outMemberFileName = datadir + '/' + memberTable + '.bcp'
+outSetFileName = setTable + '.bcp'
+outMemberFileName = memberTable + '.bcp'
 
 diagFileName = ''	# diagnostic file name
 errorFileName = ''	# error file name
@@ -389,4 +387,7 @@ bcpFiles()
 exit(0)
 
 # $Log$
+# Revision 1.1  2003/10/14 12:46:10  lec
+# new
+#
 #

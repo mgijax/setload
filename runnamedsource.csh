@@ -19,6 +19,7 @@ setenv DBUTILITIESPATH		/usr/local/mgi/dbutils/mgidbutilities
 setenv DBUSER			mgd_dbo
 setenv DBPASSWORDFILE		${DBUTILITIESPATH}/.mgd_dbo_password
 
+setenv CREATEDBY "jsam_load"
 setenv LOG	$0.log
 
 echo 'Set Load' > $LOG
