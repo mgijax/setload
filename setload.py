@@ -322,6 +322,7 @@ def process():
 
     lineNum = 0
     sequenceNum = 1
+    sequenceSetNum = 1
 
     for line in inputFile.readlines():
 
@@ -350,13 +351,16 @@ def process():
 
 	if setLookup.has_key(setName):
 	    useSetkey = setLookup[setName]
+	    sequenceSetNum = sequenceSetNum + 1
         else:
 	    useSetKey = setKey
 	    setLookup[setName] = useSetKey
+	    sequenceSetNum = 1
 
 	    outSetFile.write(str(useSetKey) + TAB + \
 	         str(mgiTypeKey) + TAB + \
 	         str(setName) + TAB + \
+		 str(sequenceSetNum) + TAB + \
 	         str(userKey) + TAB + str(userKey) + TAB + \
 	         loaddate + TAB + loaddate + CRT)
 
@@ -387,6 +391,9 @@ bcpFiles()
 exit(0)
 
 # $Log$
+# Revision 1.2  2004/02/06 20:30:32  lec
+# JSAM
+#
 # Revision 1.1  2003/10/14 12:46:10  lec
 # new
 #
