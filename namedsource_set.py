@@ -57,7 +57,7 @@ NULL = ''
 inSourceFile = ''	# file descriptor
 setFile = ''		# file descriptor
 
-inSourceFileName = 'namedsource_set.txt.good'
+inSourceFileName = sys.argv[1]
 setFileName = 'cloneset.txt'
 createdBy = os.environ['CREATEDBY']
 mgiType = 'Source'
@@ -147,4 +147,7 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.1  2003/10/14 12:46:10  lec
+# new
+#
 #

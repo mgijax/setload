@@ -12,7 +12,7 @@ touch $LOG
  
 date > $LOG
  
-namedsource_set.py
+namedsource_set.py $1
 sort -k1,1 cloneset.txt > cloneset.txt.sorted
 setload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${LOADMODE} -Icloneset.txt.sorted >>& $LOG
 
