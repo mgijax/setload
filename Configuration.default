@@ -1,0 +1,53 @@
+#!/bin/csh
+
+#
+# Configuration.default
+#
+# Source this file from any csh script to set the
+# env variables
+#
+
+# install directory
+setenv SETLOADINSTALLDIR	/usr/local/mgi/dataload/setload
+
+# system doc directory
+setenv SETLOADSYSTEMDOCDIR	$SETLOADINSTALLDIR/system_docs
+
+# data directory
+setenv SETLOADDATADIR		$SETLOADINSTALLDIR/data
+
+# SYBASE
+setenv SYBASE	/opt/sybase/12.5
+
+# LD LIBRARY PATH
+setenv LD_LIBRARY_PATH         $SYBASE/OCS-12_5/lib
+
+# PYTHON
+setenv PYTHONPATH         /usr/local/mgi/lib/python
+
+# DB UTILITIES
+setenv DBUTILITIESPATH	/usr/local/mgi/dbutils/mgidbutilities
+
+# PATH
+set path = ($DBUTILITIESPATH/bin $path $SYBASE/ASE-12_5/bin $SYBASE/OCS-12_5/bin)
+
+# Database Server; for backwards compatibility, also define DSQUERY
+setenv DBSERVER	PROD_MGI
+setenv DSQUERY $DBSERVER
+
+# Database; for backwards compatibility, also define MGD
+setenv DBNAME	mgd
+setenv MGD $DBNAME
+
+# Super User
+setenv DBUSER	mgd_dbo
+
+# Password
+setenv DBPASSWORDFILE	$DBUTILITIESPATH/.mgd_dbo_password
+
+# Load Mode
+setenv LOADMODE		load
+
+# Created By
+setenv CREATEDBY	mgd_dbo
+
