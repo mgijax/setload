@@ -4,22 +4,16 @@
 # Load Clone Set
 #
 # Usage:
-# 	runnamedsource.csh DBSERVER DBNAME inputfile mode
+# 	runnamedsource.csh SCHEMADIR inputfile mode
 #
-# Example:
-#	runnamedsource.csh PROD_MGI mgd namedsource_set.txt full
 #
 
-setenv DBSERVER		$1
-setenv DBNAME		$2
-setenv INPUTFILE	$3
-setenv MODE		$4
+setenv SCHEMADIR	$1
+setenv INPUTFILE	$2
+setenv MODE		$3
 
-setenv DBUTILITIESPATH		/usr/local/mgi/dbutils/mgidbutilities
-setenv DBUSER			mgd_dbo
-setenv DBPASSWORDFILE		${DBUTILITIESPATH}/.mgd_dbo_password
+source ${SCHEMADIR}/Configuration
 
-setenv CREATEDBY "jsam_load"
 setenv LOG	$0.log
 
 echo 'Set Load' > $LOG
