@@ -13,6 +13,7 @@ setenv INPUTFILE	$2
 setenv MODE		$3
 
 source ${SCHEMADIR}/Configuration
+setenv CREATEDBY	jsam_load
 
 setenv LOG	$0.log
 

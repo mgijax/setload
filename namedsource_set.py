@@ -120,7 +120,7 @@ def process():
         tokens = string.split(line[:-1], TAB)
 
         try:
-	    library = tokens[0]
+	    library = tokens[2]
 	    cloneSets = tokens[1]
 
         except:
@@ -147,6 +147,9 @@ process()
 exit(0)
 
 # $Log$
+# Revision 1.2  2004/02/06 19:24:49  lec
+# JSAM
+#
 # Revision 1.1  2003/10/14 12:46:10  lec
 # new
 #
