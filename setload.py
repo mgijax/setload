@@ -351,11 +351,9 @@ def process():
 
 	if setLookup.has_key(setName):
 	    useSetkey = setLookup[setName]
-	    sequenceSetNum = sequenceSetNum + 1
         else:
 	    useSetKey = setKey
 	    setLookup[setName] = useSetKey
-	    sequenceSetNum = 1
 
 	    outSetFile.write(str(useSetKey) + TAB + \
 	         str(mgiTypeKey) + TAB + \
@@ -366,6 +364,7 @@ def process():
 
 	    setKey = setKey + 1
 	    sequenceNum = 1
+	    sequenceSetNum = sequenceSetNum + 1
 
 	outMemberFile.write(str(setMemberKey) + TAB + \
 	    str(useSetKey) + TAB + \
@@ -391,6 +390,9 @@ bcpFiles()
 exit(0)
 
 # $Log$
+# Revision 1.3  2004/06/25 12:31:42  lec
+# 3.01
+#
 # Revision 1.2  2004/02/06 20:30:32  lec
 # JSAM
 #
