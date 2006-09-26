@@ -1,0 +1,13 @@
+#!/bin/csh -f
+
+#
+# Synonym load configuration file
+#
+
+source ./Configuration
+
+setenv SETMODE		load
+setenv SETDATADIR	?
+setenv SETINPUTFILE	${SETDATADIR}/input/?
+setenv SETLOG		${SETDATADIR}/logs/?
+

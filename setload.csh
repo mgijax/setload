@@ -1,25 +1,22 @@
-#!/bin/csh -f -x
+#!/bin/csh -f
 
 #
-# Usage:
-# 	setload.csh DBSERVER DBNAME inputfile mode
+# Wrapper script to create & load new set definitions
+#
+# Usage:  setload.csh
 #
 
-setenv SCHEMADIR	$1
-setenv INPUTFILE	$2
-setenv MODE		$3
+setenv CONFIGFILE $1
 
-source ${SCHEMADIR}/Configuration
+cd `dirname $0` && source ${CONFIGFILE}
 
-setenv LOG	$0.log
+setenv SETLOG	$0.log
+rm -rf ${SETLOG}
+touch ${SETLOG}
 
-echo 'Set Load' > $LOG
-date >>& $LOG
+date >& ${SETLOG}
 
-set loaddir = `dirname $0`
+${SETLOAD}/setload.py >>& ${SETLOG}
 
-# load the file
-${loaddir}/setload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} >>& $LOG
-
-date >>& $LOG
+date >>& ${SETLOG}
 

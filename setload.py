@@ -1,8 +1,5 @@
 #!/usr/local/bin/python
 
-# $Header$
-# $Name$
-
 #
 # Program: setload.py
 #
@@ -16,15 +13,6 @@
 #	MGI_SetMember
 #
 # Requirements Satisfied by This Program:
-#
-# Usage:
-#	program.py
-#	-S = database server
-#	-D = database
-#	-U = user
-#	-P = password file
-#	-M = mode
-#	-I = input file
 #
 # Envvars:
 #
@@ -61,12 +49,19 @@
 import sys
 import os
 import string
-import getopt
 import db
 import mgi_utils
 import loadlib
 
 #globals
+
+#
+# from configuration file
+#
+user = os.environ['MGD_DBUSER']
+passwordFileName = os.environ['MGD_DBPASSWORDFILE']
+mode = os.environ['SETMODE']
+inputFileName = os.environ['SETINPUTFILE']
 
 DEBUG = 0		# if 0, not in debug mode
 TAB = '\t'		# tab
@@ -92,9 +87,6 @@ outMemberFileName = memberTable + '.bcp'
 
 diagFileName = ''	# diagnostic file name
 errorFileName = ''	# error file name
-passwordFileName = ''	# password file name
-
-mode = ''		# processing mode (load, preview)
 
 # primary keys
 
@@ -104,22 +96,6 @@ setLookup = {}
 
 loaddate = loadlib.loaddate
 
-# Purpose: displays correct usage of this program
-# Returns: nothing
-# Assumes: nothing
-# Effects: exits with status of 1
-# Throws: nothing
- 
-def showUsage():
-    usage = 'usage: %s -S server\n' % sys.argv[0] + \
-        '-D database\n' + \
-        '-U user\n' + \
-        '-P password file\n' + \
-        '-M mode\n' + \
-	'-I input file\n'
-
-    exit(1, usage)
- 
 # Purpose: prints error message and exits
 # Returns: nothing
 # Assumes: nothing
@@ -154,50 +130,12 @@ def exit(
 # Throws: nothing
 
 def init():
-    global diagFile, errorFile, inputFile, errorFileName, diagFileName, passwordFileName
-    global mode
+    global diagFile, errorFile, inputFile, errorFileName, diagFileName
     global outSetFile, outMemberFile
  
-    try:
-        optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:')
-    except:
-        showUsage()
- 
-    #
-    # Set server, database, user, passwords depending on options specified
-    #
- 
-    server = ''
-    database = ''
-    user = ''
-    password = ''
-    inputFileName = ''
- 
-    for opt in optlist:
-        if opt[0] == '-S':
-            server = opt[1]
-        elif opt[0] == '-D':
-            database = opt[1]
-        elif opt[0] == '-U':
-            user = opt[1]
-        elif opt[0] == '-P':
-            passwordFileName = opt[1]
-        elif opt[0] == '-M':
-            mode = opt[1]
-        elif opt[0] == '-I':
-            inputFileName = opt[1]
-        else:
-            showUsage()
-
-    # User must specify Server, Database, User and Password
-    password = string.strip(open(passwordFileName, 'r').readline())
-    if server == '' or database == '' or user == '' or password == '' \
-	or mode == '' or inputFileName == '':
-        showUsage()
-
-    # Initialize db.py DBMS parameters
-    db.set_sqlLogin(user, password, server, database)
     db.useOneConnection(1)
+    db.set_sqlUser(user)
+    db.set_sqlPassword(passwordFileName)
  
     fdate = mgi_utils.date('%m%d%Y')	# current date
     diagFileName = sys.argv[0] + '.' + fdate + '.diagnostics'
@@ -237,10 +175,8 @@ def init():
     db.set_sqlLogFD(diagFile)
 
     diagFile.write('Start Date/Time: %s\n' % (mgi_utils.date()))
-    diagFile.write('Server: %s\n' % (server))
-    diagFile.write('Database: %s\n' % (database))
-    diagFile.write('User: %s\n' % (user))
-
+    diagFile.write('Server: %s\n' % (db.get_sqlServer()))
+    diagFile.write('Database: %s\n' % (db.get_sqlDatabase()))
     errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
 
     return
@@ -389,14 +325,3 @@ process()
 bcpFiles()
 exit(0)
 
-# $Log$
-# Revision 1.3  2004/06/25 12:31:42  lec
-# 3.01
-#
-# Revision 1.2  2004/02/06 20:30:32  lec
-# JSAM
-#
-# Revision 1.1  2003/10/14 12:46:10  lec
-# new
-#
-#
