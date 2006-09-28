@@ -275,11 +275,11 @@ def process():
 	except:
 	    exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
-        userKey = loadlib.verifyUser(createdBy, lineNum, errorFile)
+        createdByKey = loadlib.verifyUser(createdBy, lineNum, errorFile)
 	mgiTypeKey = loadlib.verifyMGIType(setType, lineNum, errorFile)
 	objectKey = loadlib.verifyObject("", mgiTypeKey, setMember, lineNum, errorFile)
 
-	if userKey == 0 or mgiTypeKey == 0 or objectKey == 0:
+	if createdByKey == 0 or mgiTypeKey == 0 or objectKey == 0:
 	    error = 1
 
         if error:
@@ -295,7 +295,7 @@ def process():
 	         str(mgiTypeKey) + TAB + \
 	         str(setName) + TAB + \
 		 str(sequenceSetNum) + TAB + \
-	         str(userKey) + TAB + str(userKey) + TAB + \
+	         str(createdByKey) + TAB + str(createdByKey) + TAB + \
 	         loaddate + TAB + loaddate + CRT)
 
 	    setKey = setKey + 1
@@ -306,7 +306,7 @@ def process():
 	    str(useSetKey) + TAB + \
 	    str(objectKey) + TAB + \
 	    str(sequenceNum) + TAB + \
-	    str(userKey) + TAB + str(userKey) + TAB + \
+	    str(createdByKey) + TAB + str(createdByKey) + TAB + \
 	    loaddate + TAB + loaddate + CRT)
 
         setMemberKey = setMemberKey + 1
