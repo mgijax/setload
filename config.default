@@ -7,7 +7,11 @@
 source ${SETLOAD}/Configuration
 
 setenv SETMODE		load
-setenv SETDATADIR	?
-setenv SETINPUTFILE	${SETDATADIR}/input/?
-setenv SETLOG		${SETDATADIR}/logs/?
+#setenv SETMODE		preview
+setenv SETDATADIR	`pwd`
+setenv SETINPUTFILE	${SETDATADIR}/cresystems.txt
+setenv SETLOG		${SETDATADIR}/cre.log
+setenv SETNAME		"Cre System"
+setenv SETTYPE		"Vocabulary Term"
+setenv CREATEDBY	mnk
 

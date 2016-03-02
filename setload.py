@@ -22,9 +22,6 @@
 #	
 #	field 1: Set Member
 #	field 2: Set Label
-#	field 3: Set Name
-#	field 4: Set Type (ACC_MGIType.name)
-#	field 5: Created By
 #
 # Outputs:
 #
@@ -67,6 +64,9 @@ user = os.environ['MGD_DBUSER']
 passwordFileName = os.environ['MGD_DBPASSWORDFILE']
 mode = os.environ['SETMODE']
 inputFileName = os.environ['SETINPUTFILE']
+setName = os.environ['SETNAME']
+setType = os.environ['SETTYPE']
+createdBy = os.environ['CREATEDBY']
 
 DEBUG = 0		# if 0, not in debug mode
 TAB = '\t'		# tab
@@ -137,6 +137,8 @@ def exit(
 def init():
     global diagFile, errorFile, inputFile, errorFileName, diagFileName
     global outSetFile, outMemberFile
+    global setKey, setMemberKey, createdByKey, mgiTypeKey, useSetKey
+    global DEBUG
  
     db.useOneConnection(1)
     db.set_sqlUser(user)
@@ -180,40 +182,41 @@ def init():
     diagFile.write('Database: %s\n' % (db.get_sqlDatabase()))
     errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
 
-    return
-
-# Purpose: verify processing mode
-# Returns: nothing
-# Assumes: nothing
-# Effects: if the processing mode is not valid, exits.
-#	   else, sets global variables DEBUG and bcpon
-# Throws:  nothing
-
-def verifyMode():
-
-    global DEBUG
-
     if mode == 'preview':
         DEBUG = 1
         bcpon = 0
     elif mode != 'load':
         exit(1, 'Invalid Processing Mode:  %s\n' % (mode))
 
-# Purpose:  sets global primary key variables
-# Returns:  nothing
-# Assumes:  nothing
-# Effects:  sets global primary key variables
-# Throws:   nothing
-
-def setPrimaryKeys():
-
-    global setKey, setMemberKey
-
     results = db.sql('select max(_Set_key) + 1 as maxKey from MGI_Set', 'auto')
     setKey = results[0]['maxKey']
 
     results = db.sql('select max(_SetMember_key) + 1 as maxKey from MGI_SetMember', 'auto')
     setMemberKey = results[0]['maxKey']
+
+    createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
+    mgiTypeKey = loadlib.verifyMGIType(setType, 0, errorFile)
+
+    #
+    # use existing MGI_Set, or create a new one
+    #
+    results = db.sql('select _Set_key from MGI_Set where _MGIType_key = %s and name = \'%s\'' 
+	% (mgiTypeKey, setName), 'auto')
+
+    if len(results) > 0:
+        for r in results:
+            setKey = r['_Set_key']
+	# delete/reload
+	db.sql('delete from MGI_SetMember where _Set_key = %s' % (setKey), None)
+    else:
+        outSetFile.write(str(setKey) + TAB + \
+	   str(mgiTypeKey) + TAB + \
+	   str(setName) + TAB + \
+	   '1' + TAB + \
+	   str(createdByKey) + TAB + str(createdByKey) + TAB + \
+	   loaddate + TAB + loaddate + CRT)
+
+    return
 
 # Purpose:  BCPs the data into the database
 # Returns:  nothing
@@ -254,15 +257,13 @@ def bcpFiles():
 
 def process():
 
-    global setKey, setMemberKey
+    global setKey, setMemberKey, setKey
 
     lineNum = 0
     sequenceNum = 1
-    sequenceSetNum = 1
 
     for line in inputFile.readlines():
 
-	error = 0
 	lineNum = lineNum + 1
 
 	tokens = string.split(line[:-1], TAB)
@@ -270,41 +271,16 @@ def process():
         try:
 	    setMember = tokens[0]
 	    setLabel = tokens[1]
-	    setName = tokens[2]
-	    setType = tokens[3]
-	    createdBy = tokens[4]
 	except:
 	    exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
-        createdByKey = loadlib.verifyUser(createdBy, lineNum, errorFile)
-	mgiTypeKey = loadlib.verifyMGIType(setType, lineNum, errorFile)
 	objectKey = loadlib.verifyObject(setMember, mgiTypeKey, "", lineNum, errorFile)
 
-	if createdByKey == 0 or mgiTypeKey == 0 or objectKey == 0:
-	    error = 1
-
-        if error:
+	if objectKey == 0:
 	    continue
 
-	if setLookup.has_key(setName):
-	    useSetkey = setLookup[setName]
-        else:
-	    useSetKey = setKey
-	    setLookup[setName] = useSetKey
-
-	    outSetFile.write(str(useSetKey) + TAB + \
-	         str(mgiTypeKey) + TAB + \
-	         str(setName) + TAB + \
-		 str(sequenceSetNum) + TAB + \
-	         str(createdByKey) + TAB + str(createdByKey) + TAB + \
-	         loaddate + TAB + loaddate + CRT)
-
-	    setKey = setKey + 1
-	    sequenceNum = 1
-	    sequenceSetNum = sequenceSetNum + 1
-
 	outMemberFile.write(str(setMemberKey) + TAB + \
-	    str(useSetKey) + TAB + \
+	    str(setKey) + TAB + \
 	    str(objectKey) + TAB + \
 	    str(setLabel) + TAB + \
 	    str(sequenceNum) + TAB + \
@@ -321,8 +297,6 @@ def process():
 #
 
 init()
-verifyMode()
-setPrimaryKeys()
 process()
 bcpFiles()
 exit(0)
