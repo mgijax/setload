@@ -20,10 +20,11 @@
 #
 #	Tab-delimited file with the following fields:
 #	
-#	field 1: Set Name
-#	field 2: Set Type (ACC_MGIType.name)
-#	field 3: Set Member
-#	field 4: Created By
+#	field 1: Set Member
+#	field 2: Set Label
+#	field 3: Set Name
+#	field 4: Set Type (ACC_MGIType.name)
+#	field 5: Created By
 #
 # Outputs:
 #
@@ -54,6 +55,10 @@ import mgi_utils
 import loadlib
 
 #globals
+
+db.setTrace(True)
+db.setAutoTranslate(False)
+db.setAutoTranslateBE(False)
 
 #
 # from configuration file
@@ -137,9 +142,8 @@ def init():
     db.set_sqlUser(user)
     db.set_sqlPasswordFromFile(passwordFileName)
  
-    fdate = mgi_utils.date('%m%d%Y')	# current date
-    diagFileName = sys.argv[0] + '.' + fdate + '.diagnostics'
-    errorFileName = sys.argv[0] + '.' + fdate + '.error'
+    diagFileName = 'setload.diagnostics'
+    errorFileName = 'setload.error'
 
     try:
         diagFile = open(diagFileName, 'w')
@@ -170,9 +174,6 @@ def init():
 
     # Log all SQL
     db.set_sqlLogFunction(db.sqlLogAll)
-
-    # Set Log File Descriptor
-    db.set_sqlLogFD(diagFile)
 
     diagFile.write('Start Date/Time: %s\n' % (mgi_utils.date()))
     diagFile.write('Server: %s\n' % (db.get_sqlServer()))
@@ -208,10 +209,10 @@ def setPrimaryKeys():
 
     global setKey, setMemberKey
 
-    results = db.sql('select maxKey = max(_Set_key) + 1 from MGI_Set', 'auto')
+    results = db.sql('select max(_Set_key) + 1 as maxKey from MGI_Set', 'auto')
     setKey = results[0]['maxKey']
 
-    results = db.sql('select maxKey = max(_SetMember_key) + 1 from MGI_SetMember', 'auto')
+    results = db.sql('select max(_SetMember_key) + 1 as maxKey from MGI_SetMember', 'auto')
     setMemberKey = results[0]['maxKey']
 
 # Purpose:  BCPs the data into the database
@@ -222,27 +223,26 @@ def setPrimaryKeys():
 
 def bcpFiles():
 
-    if DEBUG or not bcpon:
-        return
-
     outSetFile.close()
     outMemberFile.close()
 
-    bcpI = 'cat %s | bcp %s..' % (passwordFileName, db.get_sqlDatabase())
-    bcpII = '-c -t\"%s' % (bcpdelim) + '" -S%s -U%s' % (db.get_sqlServer(), db.get_sqlUser())
-    truncateDB = 'dump transaction %s with truncate_only' % (db.get_sqlDatabase())
+    db.commit()
 
-    bcp1 = '%s%s in %s %s' % (bcpI, setTable, outSetFileName, bcpII)
-    bcp2 = '%s%s in %s %s' % (bcpI, memberTable, outMemberFileName, bcpII)
+    if DEBUG or not bcpon:
+        return
+
+    bcpCommand = os.environ['PG_DBUTILS'] + '/bin/bcpin.csh'
+    currentDir = os.getcwd()
+
+    bcp1 = '%s %s %s %s %s %s "\\t" "\\n" mgd' % \
+        (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), setTable, currentDir, outSetFileName)
+
+    bcp2 = '%s %s %s %s %s %s "\\t" "\\n" mgd' % \
+        (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), memberTable, currentDir, outMemberFileName)
 
     for bcpCmd in [bcp1, bcp2]:
 	diagFile.write('%s\n' % bcpCmd)
 	os.system(bcpCmd)
-	db.sql(truncateDB, None)
-
-    # update statistics
-    db.sql('update statistics %s' % (setTable), None)
-    db.sql('update statistics %s' % (memberTable), None)
 
     return
 
@@ -268,16 +268,17 @@ def process():
 	tokens = string.split(line[:-1], TAB)
 
         try:
-	    setName = tokens[0]
-	    setType = tokens[1]
-	    setMember = tokens[2]
-	    createdBy = tokens[3]
+	    setMember = tokens[0]
+	    setLabel = tokens[1]
+	    setName = tokens[2]
+	    setType = tokens[3]
+	    createdBy = tokens[4]
 	except:
 	    exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
         createdByKey = loadlib.verifyUser(createdBy, lineNum, errorFile)
 	mgiTypeKey = loadlib.verifyMGIType(setType, lineNum, errorFile)
-	objectKey = loadlib.verifyObject("", mgiTypeKey, setMember, lineNum, errorFile)
+	objectKey = loadlib.verifyObject(setMember, mgiTypeKey, "", lineNum, errorFile)
 
 	if createdByKey == 0 or mgiTypeKey == 0 or objectKey == 0:
 	    error = 1
@@ -305,6 +306,7 @@ def process():
 	outMemberFile.write(str(setMemberKey) + TAB + \
 	    str(useSetKey) + TAB + \
 	    str(objectKey) + TAB + \
+	    str(setLabel) + TAB + \
 	    str(sequenceNum) + TAB + \
 	    str(createdByKey) + TAB + str(createdByKey) + TAB + \
 	    loaddate + TAB + loaddate + CRT)
