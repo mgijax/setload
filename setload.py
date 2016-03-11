@@ -191,9 +191,6 @@ def init():
     results = db.sql('select max(_Set_key) + 1 as maxKey from MGI_Set', 'auto')
     setKey = results[0]['maxKey']
 
-    results = db.sql('select max(_SetMember_key) + 1 as maxKey from MGI_SetMember', 'auto')
-    setMemberKey = results[0]['maxKey']
-
     createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
     mgiTypeKey = loadlib.verifyMGIType(setType, 0, errorFile)
 
@@ -215,6 +212,9 @@ def init():
 	   '1' + TAB + \
 	   str(createdByKey) + TAB + str(createdByKey) + TAB + \
 	   loaddate + TAB + loaddate + CRT)
+
+    results = db.sql('select max(_SetMember_key) + 1 as maxKey from MGI_SetMember', 'auto')
+    setMemberKey = results[0]['maxKey']
 
     return
 
