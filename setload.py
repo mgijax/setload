@@ -86,9 +86,9 @@ inputFile = ''		# file descriptor
 
 setTable = 'MGI_Set'
 memberTable = 'MGI_SetMember'
-
-outSetFileName = setTable + '.bcp'
-outMemberFileName = memberTable + '.bcp'
+outputDir = os.environ['SETOUTPUTDIR']
+outSetFileName = '%s.bcp' % setTable
+outMemberFileName = '%s.bcp' % memberTable
 
 diagFileName = ''	# diagnostic file name
 errorFileName = ''	# error file name
@@ -144,8 +144,8 @@ def init():
     db.set_sqlUser(user)
     db.set_sqlPasswordFromFile(passwordFileName)
  
-    diagFileName = 'setload.diagnostics'
-    errorFileName = 'setload.error'
+    diagFileName = '%s/setload.diagnostics' % (outputDir)
+    errorFileName = '%s/setload.error' % (outputDir)
 
     try:
         diagFile = open(diagFileName, 'w')
@@ -165,14 +165,16 @@ def init():
     # Output Files
 
     try:
-        outSetFile = open(outSetFileName, 'w')
+	fullPathSetFile = '%s/%s' % (outputDir, outSetFileName)
+        outSetFile = open(fullPathSetFile, 'w')
     except:
-        exit(1, 'Could not open file %s\n' % outSetFileName)
+        exit(1, 'Could not open file %s\n' % fullPathSetFile)
 
     try:
-        outMemberFile = open(outMemberFileName, 'w')
+	fullPathMemberFile  = '%s/%s' % (outputDir, outMemberFileName)
+        outMemberFile = open(fullPathMemberFile, 'w')
     except:
-        exit(1, 'Could not open file %s\n' % outMemberFileName)
+        exit(1, 'Could not open file %s\n' % fullPathMemberFile)
 
     # Log all SQL
     db.set_sqlLogFunction(db.sqlLogAll)
@@ -235,13 +237,12 @@ def bcpFiles():
         return
 
     bcpCommand = os.environ['PG_DBUTILS'] + '/bin/bcpin.csh'
-    currentDir = os.getcwd()
 
     bcp1 = '%s %s %s %s %s %s "\\t" "\\n" mgd' % \
-        (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), setTable, currentDir, outSetFileName)
+        (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), setTable, outputDir, outSetFileName)
 
     bcp2 = '%s %s %s %s %s %s "\\t" "\\n" mgd' % \
-        (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), memberTable, currentDir, outMemberFileName)
+        (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), memberTable, outputDir, outMemberFileName)
 
     for bcpCmd in [bcp1, bcp2]:
 	diagFile.write('%s\n' % bcpCmd)

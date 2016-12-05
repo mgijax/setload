@@ -8,10 +8,13 @@ source ${SETLOAD}/Configuration
 
 setenv SETMODE		load
 #setenv SETMODE		preview
-setenv SETDATADIR	`pwd`
-setenv SETINPUTFILE	${SETDATADIR}/cresystems.txt
-setenv SETLOG		${SETDATADIR}/cre.log
-setenv SETNAME		"Cre System"
-setenv SETTYPE		"Vocabulary Term"
-setenv CREATEDBY	mnk
+
+setenv LOADDIR          /data/loads/<path to product output dirs>
+setenv SETOUTPUTDIR     ${LOADDIR}/output
+setenv SETDATADIR       ${LOADDIR}/input
+setenv SETINPUTFILE	${SETDATADIR}/<name of input file>
+setenv SETLOG		${SETDATADIR}/<name of log>
+setenv SETNAME		<MGI_Set.name e.g. "EMAP Slim">
+setenv SETTYPE		<ACC_MGIType.name e.g. "Vocabulary Term">
+setenv CREATEDBY	<curator login e.g. "csmith">
 
