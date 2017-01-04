@@ -54,8 +54,6 @@ import loadlib
 #globals
 
 db.setTrace(True)
-db.setAutoTranslate(False)
-db.setAutoTranslateBE(False)
 
 #
 # from configuration file
