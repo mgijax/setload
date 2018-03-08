@@ -9,7 +9,7 @@ source ${SETLOAD}/Configuration
 setenv SETMODE		load
 #setenv SETMODE		preview
 
-setenv LOADDIR          /data/loads/<path to product output dirs>
+setenv LOADDIR          ${DATALOADSOUTPUT}/<path to product output dirs>
 setenv SETOUTPUTDIR     ${LOADDIR}/output
 setenv SETDATADIR       ${LOADDIR}/input
 setenv SETINPUTFILE	${SETDATADIR}/<name of input file>
