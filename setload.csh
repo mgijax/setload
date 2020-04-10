@@ -15,7 +15,7 @@ touch ${SETLOG}
 
 date >& ${SETLOG}
 
-${SETLOAD}/setload.py >>& ${SETLOG}
+${PYTHON} ${SETLOAD}/setload.py >>& ${SETLOG}
 
 date >>& ${SETLOG}
 

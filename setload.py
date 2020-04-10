@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 #
 # Program: setload.py
 #
@@ -46,7 +44,6 @@
 
 import sys
 import os
-import string
 import db
 import mgi_utils
 import loadlib
@@ -107,7 +104,7 @@ loaddate = loadlib.loaddate
 
 def exit(
     status,          # numeric exit status (integer)
-    message = None   # exit message (string)
+    message = None   # exit message (str.
     ):
 
     if message is not None:
@@ -149,27 +146,27 @@ def init():
         diagFile = open(diagFileName, 'w')
     except:
         exit(1, 'Could not open file %s\n' % diagFileName)
-		
+                
     try:
         errorFile = open(errorFileName, 'w')
     except:
         exit(1, 'Could not open file %s\n' % errorFileName)
-		
+                
     try:
         inputFile = open(inputFileName, 'r')
     except:
         exit(1, 'Could not open file %s\n' % inputFileName)
-		
+                
     # Output Files
 
     try:
-	fullPathSetFile = '%s/%s' % (outputDir, outSetFileName)
+        fullPathSetFile = '%s/%s' % (outputDir, outSetFileName)
         outSetFile = open(fullPathSetFile, 'w')
     except:
         exit(1, 'Could not open file %s\n' % fullPathSetFile)
 
     try:
-	fullPathMemberFile  = '%s/%s' % (outputDir, outMemberFileName)
+        fullPathMemberFile  = '%s/%s' % (outputDir, outMemberFileName)
         outMemberFile = open(fullPathMemberFile, 'w')
     except:
         exit(1, 'Could not open file %s\n' % fullPathMemberFile)
@@ -198,20 +195,20 @@ def init():
     # use existing MGI_Set, or create a new one
     #
     results = db.sql('select _Set_key from MGI_Set where _MGIType_key = %s and name = \'%s\'' 
-	% (mgiTypeKey, setName), 'auto')
+        % (mgiTypeKey, setName), 'auto')
 
     if len(results) > 0:
         for r in results:
             setKey = r['_Set_key']
-	# delete/reload
-	db.sql('delete from MGI_SetMember where _Set_key = %s' % (setKey), None)
+        # delete/reload
+        db.sql('delete from MGI_SetMember where _Set_key = %s' % (setKey), None)
     else:
         outSetFile.write(str(setKey) + TAB + \
-	   str(mgiTypeKey) + TAB + \
-	   str(setName) + TAB + \
-	   '1' + TAB + \
-	   str(createdByKey) + TAB + str(createdByKey) + TAB + \
-	   loaddate + TAB + loaddate + CRT)
+           str(mgiTypeKey) + TAB + \
+           str(setName) + TAB + \
+           '1' + TAB + \
+           str(createdByKey) + TAB + str(createdByKey) + TAB + \
+           loaddate + TAB + loaddate + CRT)
 
     results = db.sql('select max(_SetMember_key) + 1 as maxKey from MGI_SetMember', 'auto')
     setMemberKey = results[0]['maxKey']
@@ -243,8 +240,8 @@ def bcpFiles():
         (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), memberTable, outputDir, outMemberFileName)
 
     for bcpCmd in [bcp1, bcp2]:
-	diagFile.write('%s\n' % bcpCmd)
-	os.system(bcpCmd)
+        diagFile.write('%s\n' % bcpCmd)
+        os.system(bcpCmd)
 
     return
 
@@ -263,31 +260,31 @@ def process():
 
     for line in inputFile.readlines():
 
-	lineNum = lineNum + 1
+        lineNum = lineNum + 1
 
-	tokens = string.split(line[:-1], TAB)
+        tokens = str.split(line[:-1], TAB)
 
         try:
-	    setMember = tokens[0]
-	    setLabel = tokens[1]
-	except:
-	    exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
+            setMember = tokens[0]
+            setLabel = tokens[1]
+        except:
+            exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
-	objectKey = loadlib.verifyObject(setMember, mgiTypeKey, "", lineNum, errorFile)
+        objectKey = loadlib.verifyObject(setMember, mgiTypeKey, "", lineNum, errorFile)
 
-	if objectKey == 0:
-	    continue
+        if objectKey == 0:
+            continue
 
-	outMemberFile.write(str(setMemberKey) + TAB + \
-	    str(setKey) + TAB + \
-	    str(objectKey) + TAB + \
-	    str(setLabel) + TAB + \
-	    str(sequenceNum) + TAB + \
-	    str(createdByKey) + TAB + str(createdByKey) + TAB + \
-	    loaddate + TAB + loaddate + CRT)
+        outMemberFile.write(str(setMemberKey) + TAB + \
+            str(setKey) + TAB + \
+            str(objectKey) + TAB + \
+            str(setLabel) + TAB + \
+            str(sequenceNum) + TAB + \
+            str(createdByKey) + TAB + str(createdByKey) + TAB + \
+            loaddate + TAB + loaddate + CRT)
 
         setMemberKey = setMemberKey + 1
-	sequenceNum = sequenceNum + 1
+        sequenceNum = sequenceNum + 1
 
     return
 
@@ -299,4 +296,3 @@ init()
 process()
 bcpFiles()
 exit(0)
-
